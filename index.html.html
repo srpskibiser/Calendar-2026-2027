@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Folklorni Ansambl Srpski Biser — Kalendar Događaja 2026/2027</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Spectral:wght@400;500;600;700&family=Spectral+SC:wght@600&family=Karla:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --oxblood: #7A2530;
+    --oxblood-dark: #5C1B24;
+    --gold: #B8912F;
+    --gold-light: #E4C879;
+    --cream: #F4EBD6;
+    --parchment: #FBF6EA;
+    --ink: #2B211B;
+    --sage: #4A5D45;
+    --plum: #5B3758;
+    --line: #E0D3AE;
+    --senior-red: #C41E3A;
+    --junior-blue: #2C5F8A;
+    --children-white: #FFFFFF;
+    --perf-yellow: #F0C020;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--cream);
+    color: var(--ink);
+    font-family: 'Karla', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+  .wrap { max-width: 900px; margin: 0 auto; padding: 0 0 60px; }
+
+  /* Header */
+  header {
+    background: linear-gradient(180deg, var(--oxblood) 0%, var(--oxblood-dark) 100%);
+    color: var(--parchment);
+    padding: 40px 24px 28px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  header::before, header::after {
+    content: "";
+    position: absolute;
+    left: 0; right: 0;
+    height: 10px;
+    background-image: repeating-linear-gradient(135deg, var(--gold) 0 6px, transparent 6px 12px);
+    opacity: 0.85;
+  }
+  header::before { top: 0; }
+  header::after { bottom: 0; }
+  .eyebrow {
+    font-family: 'Karla', sans-serif;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    font-size: 11px;
+    color: var(--gold-light);
+    margin-bottom: 10px;
+    font-weight: 600;
+  }
+  h1 {
+    font-family: 'Spectral SC', serif;
+    font-weight: 600;
+    font-size: clamp(26px, 5vw, 40px);
+    margin: 0 0 8px;
+    letter-spacing: 0.01em;
+  }
+  .season-range {
+    font-family: 'Spectral', serif;
+    font-style: italic;
+    font-size: 16px;
+    color: var(--gold-light);
+  }
+  .instructors {
+    font-family: 'Karla', sans-serif;
+    font-size: 12.5px;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    color: var(--gold-light);
+    margin-top: 6px;
+    opacity: 0.9;
+  }
+
+  /* Legend */
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 18px;
+    justify-content: center;
+    padding: 18px 24px 6px;
+  }
+  .legend-item { display: flex; align-items: center; gap: 7px; font-size: 13px; font-weight: 600; color: var(--ink); }
+  .dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+  .dot.senior { background: var(--senior-red); }
+  .dot.junior { background: var(--junior-blue); }
+  .dot.children { background: var(--children-white); border: 1.5px solid var(--ink); }
+  .dot.performance { background: var(--perf-yellow); border: 1.5px solid var(--ink); }
+  .dot.church { background: var(--plum); }
+  .dot.other { background: var(--sage); }
+
+  .toolbar {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    padding: 14px 24px 4px;
+    flex-wrap: wrap;
+  }
+  .lock-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #8a7a56;
+    padding: 9px 14px;
+    border: 1.5px solid var(--line);
+    border-radius: 3px;
+    background: var(--parchment);
+    cursor: pointer;
+  }
+  .lock-badge.unlocked { color: var(--sage); border-color: var(--sage); }
+  .pass-row { display: flex; gap: 8px; }
+  .pass-row input { flex: 1; }
+  .pass-row .btn { flex: 0 0 auto; padding: 9px 16px; }
+  .view-only-note {
+    font-size: 12.5px; color: #8a7a56; font-style: italic; margin-top: 10px;
+    padding: 10px; background: #F0E4C4; border-radius: 5px;
+  }
+  .btn {
+    font-family: 'Karla', sans-serif;
+    font-weight: 700;
+    font-size: 13.5px;
+    letter-spacing: 0.02em;
+    border: 1.5px solid var(--oxblood);
+    background: var(--parchment);
+    color: var(--oxblood);
+    padding: 9px 18px;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: all .15s ease;
+  }
+  .btn:hover { background: var(--oxblood); color: var(--parchment); }
+  .btn.primary { background: var(--oxblood); color: var(--parchment); }
+  .btn.primary:hover { background: var(--oxblood-dark); }
+  .status-msg { text-align:center; font-size:12.5px; color:#8a7a56; padding: 6px 24px 0; min-height: 16px; }
+
+  /* Months */
+  .month {
+    margin: 30px 20px 0;
+    background: var(--parchment);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  .month-head {
+    font-family: 'Spectral', serif;
+    font-weight: 600;
+    font-size: 20px;
+    color: var(--oxblood);
+    padding: 16px 20px 10px;
+    border-bottom: 1px dashed var(--line);
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+  }
+  .month-head .mcount { font-family:'Karla',sans-serif; font-weight:600; font-size: 12px; color: var(--gold); text-transform: uppercase; letter-spacing: .06em; }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    width: 100%;
+  }
+  .dow {
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    color: #A08A56;
+    text-align: center;
+    padding: 8px 2px 4px;
+  }
+  .day {
+    min-height: 74px;
+    min-width: 0;
+    border-top: 1px solid var(--line);
+    border-left: 1px solid var(--line);
+    padding: 5px 5px 4px;
+    position: relative;
+    cursor: pointer;
+    transition: background .12s ease;
+    overflow: hidden;
+  }
+  .day:nth-child(7n) { border-right: 1px solid var(--line); }
+  .day:hover { background: #F0E4C4; }
+  .day.empty { background: repeating-linear-gradient(135deg, #EFE6CC 0, #EFE6CC 4px, #F4ECD6 4px, #F4ECD6 8px); cursor: default; }
+  .day.out-of-season { opacity: 0.35; cursor: default; }
+  .day.out-of-season:hover { background: none; }
+  .daynum { font-size: 12.5px; font-weight: 700; color: var(--ink); }
+  .day.today .daynum {
+    background: var(--gold);
+    color: var(--parchment);
+    border-radius: 50%;
+    width: 20px; height: 20px;
+    display: inline-flex; align-items: center; justify-content: center;
+  }
+  .evt-tag {
+    font-size: 10.5px;
+    font-weight: 600;
+    color: #fff;
+    border-radius: 2px;
+    padding: 1.5px 4px;
+    margin-top: 3px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .evt-tag.senior { background: var(--senior-red); }
+  .evt-tag.junior { background: var(--junior-blue); }
+  .evt-tag.children { background: var(--children-white); color: var(--ink); border: 1.5px solid var(--ink); }
+  .evt-tag.performance { background: var(--perf-yellow); color: var(--ink); border: 1px solid var(--ink); }
+  .evt-tag.church { background: var(--plum); }
+  .evt-tag.other { background: var(--sage); }
+  .more-tag { font-size: 10px; color: #8a7a56; font-weight: 700; margin-top: 2px; }
+
+  /* Modal */
+  .overlay {
+    position: fixed; inset: 0; background: rgba(43,33,27,0.55);
+    display: none; align-items: center; justify-content: center;
+    padding: 20px; z-index: 50;
+  }
+  .overlay.open { display: flex; }
+  .modal {
+    background: var(--parchment);
+    border-radius: 8px;
+    width: 100%; max-width: 420px;
+    max-height: 88vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.35);
+    border-top: 5px solid var(--oxblood);
+  }
+  .modal-inner { padding: 22px 24px 26px; }
+  .modal h2 {
+    font-family: 'Spectral', serif;
+    font-size: 20px;
+    color: var(--oxblood);
+    margin: 0 0 4px;
+  }
+  .modal .modal-date { font-size: 12.5px; color: #8a7a56; margin-bottom: 16px; font-weight: 600; }
+  label { display: block; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: var(--ink); margin: 14px 0 5px; }
+  label:first-of-type { margin-top: 0; }
+  input[type=text], input[type=time], input[type=date], textarea, select {
+    width: 100%;
+    font-family: 'Karla', sans-serif;
+    font-size: 14.5px;
+    padding: 9px 10px;
+    border: 1.5px solid var(--line);
+    border-radius: 4px;
+    background: #fff;
+    color: var(--ink);
+  }
+  textarea { resize: vertical; min-height: 50px; }
+  .type-picker { display: flex; gap: 8px; flex-wrap: wrap; }
+  .type-opt {
+    flex: 1 1 auto;
+    text-align: center;
+    padding: 8px 6px;
+    border-radius: 4px;
+    border: 1.5px solid var(--line);
+    font-size: 12.5px;
+    font-weight: 700;
+    cursor: pointer;
+    color: var(--ink);
+  }
+  .type-opt.sel.senior { background: var(--senior-red); color: #fff; border-color: var(--senior-red); }
+  .type-opt.sel.junior { background: var(--junior-blue); color: #fff; border-color: var(--junior-blue); }
+  .type-opt.sel.children { background: var(--children-white); color: var(--ink); border-color: var(--ink); }
+  .type-opt.sel.performance { background: var(--perf-yellow); color: var(--ink); border-color: var(--ink); }
+  .type-opt.sel.church { background: var(--plum); color: #fff; border-color: var(--plum); }
+  .type-opt.sel.other { background: var(--sage); color: #fff; border-color: var(--sage); }
+  .modal-actions { display: flex; gap: 10px; margin-top: 22px; }
+  .modal-actions .btn { flex: 1; }
+  .existing-list { margin-top: 8px; }
+  .existing-evt {
+    display: flex; align-items: flex-start; gap: 8px;
+    padding: 10px; border: 1px solid var(--line); border-radius: 5px; margin-bottom: 8px;
+    background: #fff;
+  }
+  .existing-evt .swatch { width: 8px; align-self: stretch; border-radius: 2px; flex-shrink:0; }
+  .existing-evt .swatch.senior{background:var(--senior-red);} .existing-evt .swatch.junior{background:var(--junior-blue);} .existing-evt .swatch.children{background:var(--children-white); border:1px solid var(--ink);} .existing-evt .swatch.performance{background:var(--perf-yellow); border:1px solid var(--ink);} .existing-evt .swatch.church{background:var(--plum);} .existing-evt .swatch.other{background:var(--sage);}
+  .existing-evt .body { flex: 1; }
+  .existing-evt .etitle { font-weight: 700; font-size: 14px; }
+  .existing-evt .emeta { font-size: 12px; color: #8a7a56; margin-top: 2px; }
+  .existing-evt .enotes { font-size: 12.5px; margin-top: 4px; color: #4a4238; }
+  .del-btn { background: none; border: none; color: #a04040; font-size: 12px; font-weight: 700; cursor: pointer; padding: 4px 6px; }
+  .close-x { position: absolute; top: 14px; right: 16px; background: none; border: none; font-size: 20px; color: var(--oxblood); cursor: pointer; line-height: 1; }
+  .modal { position: relative; }
+  .empty-note { font-size: 13px; color: #8a7a56; font-style: italic; margin-top: 4px; }
+  footer { text-align: center; padding: 30px 24px 0; font-size: 12px; color: #A08A56; }
+
+  @media (max-width: 480px) {
+    .month { margin: 24px 10px 0; }
+    .day { min-height: 62px; padding: 3px 3px 2px; }
+    .daynum { font-size: 11px; }
+    .evt-tag { font-size: 9px; padding: 1px 3px; }
+    .dow { font-size: 9px; padding: 6px 1px 3px; }
+    header { padding: 30px 14px 22px; }
+    .legend { padding: 14px 14px 4px; gap: 8px 12px; }
+    .toolbar { padding: 12px 14px 4px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="eyebrow">Folklorni Ansambl Srpski Biser</div>
+  <h1 id="groupTitle">Kalendar Događaja 2026/2027</h1>
+  <div class="season-range">2. septembar 2026. – 14. maj 2027.</div>
+  <div class="instructors">Instructors: Selena & Dragana</div>
+  <div class="instructors">Srpskibiser1@gmail.com</div>
+</header>
+
+<div class="legend">
+  <div class="legend-item"><span class="dot senior"></span>Prvi Ansambl</div>
+  <div class="legend-item"><span class="dot junior"></span>Omladinski Ansambl</div>
+  <div class="legend-item"><span class="dot children"></span>Dečiji Ansambl</div>
+  <div class="legend-item"><span class="dot performance"></span>Nastup</div>
+  <div class="legend-item"><span class="dot church"></span>Crkveni Događaj</div>
+  <div class="legend-item"><span class="dot other"></span>Ostalo</div>
+</div>
+
+<div class="status-msg" id="statusMsg">Loading calendar…</div>
+
+<div class="wrap" id="calendarWrap"></div>
+
+<footer>Tap any date to view event details</footer>
+
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <button class="close-x" id="closeModal">&times;</button>
+    <div class="modal-inner">
+      <h2>Events</h2>
+      <div class="modal-date" id="modalDateLabel"></div>
+
+      <div class="existing-list" id="existingList"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const SEASON_START = new Date(2026, 8, 2);  // Sept 2 2026
+const SEASON_END = new Date(2027, 4, 14);   // May 14 2027
+const MONTHS = [
+  {y:2026,m:8},{y:2026,m:9},{y:2026,m:10},{y:2026,m:11},
+  {y:2027,m:0},{y:2027,m:1},{y:2027,m:2},{y:2027,m:3},{y:2027,m:4}
+];
+const MONTH_NAMES = ["Januar","Februar","Mart","April","Maj","Jun","Jul","Avgust","Septembar","Oktobar","Novembar","Decembar"];
+const DOW = ["Ned","Pon","Uto","Sre","Čet","Pet","Sub"];
+const TYPE_LABEL = {senior:"Senior Ensemble", junior:"Junior Ensemble", children:"Children's Ensemble", performance:"Performance", church:"Church Event", other:"Other"};
+
+let events = [];
+let selectedDate = null;
+
+function dateKey(y,m,d){
+  return `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+}
+function inSeason(dateObj){
+  return dateObj >= SEASON_START && dateObj <= SEASON_END;
+}
+function fmtLong(dateObj){
+  return dateObj.toLocaleDateString('en-US', {weekday:'long', month:'long', day:'numeric', year:'numeric'});
+}
+function todayKey(){
+  const t = new Date();
+  return dateKey(t.getFullYear(), t.getMonth(), t.getDate());
+}
+
+const CANONICAL_TITLES = {
+  'other-season-begins': 'Sezona Počinje / Season Begins',
+  'other-parent-meeting': 'Roditeljski Sastanak i Pitanja i Odgovori / Parent Meeting and Q&A',
+  'other-season-ends': 'Sezona se Završava / Season Ends',
+  'church-nativity-fast': 'Božićni Post Počinje / Nativity Fast Begins',
+  'church-badnji-dan': 'Badnji Dan / Christmas Eve — Last Day of Christmas Fast',
+  'church-bozic': 'Božić / Christmas',
+  'church-djetinjci': "Detinjci / Children's Sunday",
+  'church-great-lent': 'Veliki Post Počinje / Great Lent Begins',
+  'church-lazarus-saturday': 'Vrbica / Lazarus Saturday',
+  'church-palm-sunday': 'Cveti / Palm Sunday',
+  'church-holy-week': 'Strašna Sedmica / Holy Week',
+  'church-veliki-petak': 'Veliki Petak / Good Friday',
+  'church-velika-sreda': 'Velika Sreda / Holy Wednesday',
+  'church-velika-subota': 'Velika Subota / Holy Saturday',
+  'church-easter': 'Vaskrs / Orthodox Easter — Fast Ends',
+  'other-newyears-break': "Proba Otkazana — Novogodišnji Praznici / Practice Cancelled — New Year's Break",
+  'other-orthodox-newyear-prep': 'Proba Otkazana — Priprema za Proslavu Pravoslavne Nove Godine / Practice Cancelled — Orthodox New Year Celebration Prep',
+  'other-annual-picnic': 'Godišnji Piknik (Predloženo) — u Organizaciji Srpski Biser / Annual Picnic (Proposed) — Organized by Srpski Biser',
+  'other-nye-jan1': "Proba Otkazana — Nova Godina / Practice Cancelled — New Year's Day",
+  'perf-kss-sveta-petka': 'Proslava Slave KSS Sveta Petka / Kolo Srpskih Sestara (KSS) — St. Petka Slava Celebration',
+  'perf-sv-arhangel-mihailo': 'Proslava Slave Folklora Sv. Arhangela Mihaila / Folklore Slava Celebration — St. Archangel Michael',
+  'perf-slava-crkve': 'Proslava Slave Crkve / Church Slava Celebration',
+  'perf-annual-concert': 'Godišnji Koncert (Predloženo) / Annual Concert (Proposed)'
+};
+const RECURRING_TITLES = {
+  'rec-senior-': 'Prvi Ansambl - Proba / Senior Ensemble Rehearsal',
+  'rec-children-': "Dečiji Ansambl - Proba / Children's Ensemble Rehearsal",
+  'rec-junior-': 'Omladinski Ansambl - Proba / Junior Ensemble Rehearsal'
+};
+
+async function loadEvents(){
+  events = buildRecurringPractices()
+    .concat(buildMainPerformances())
+    .concat(buildChurchEvents())
+    .concat(buildOtherEvents())
+    .filter(e => !CANCELLED_PRACTICE_IDS.includes(e.id));
+}
+async function saveEvents(){
+  // Static view-only version: no persistence, nothing to save.
+  return true;
+}
+
+const CANCELLED_PRACTICE_IDS = [
+  'rec-senior-2026-12-30',
+  'rec-junior-2027-01-01', 'rec-children-2027-01-01',
+  'rec-senior-2027-01-06',
+  'rec-junior-2027-01-08', 'rec-children-2027-01-08',
+  'rec-junior-2027-04-30', 'rec-children-2027-04-30',
+  'rec-senior-2027-04-28'
+];
+
+function buildRecurringPractices(){
+  const list = [];
+  let d = new Date(SEASON_START);
+  while(d <= SEASON_END){
+    const dow = d.getDay();
+    const key = dateKey(d.getFullYear(), d.getMonth(), d.getDate());
+    if(dow === 3){ // Wednesday
+      list.push({id:`rec-senior-${key}`, date:key, title:'Prvi Ansambl - Proba / Senior Ensemble Rehearsal', type:'senior', time:'19:00', endTime:'21:00', location:'', notes:''});
+    } else if(dow === 5){ // Friday
+      list.push({id:`rec-children-${key}`, date:key, title:"Dečiji Ansambl - Proba / Children's Ensemble Rehearsal", type:'children', time:'18:30', endTime:'19:15', location:'', notes:''});
+      list.push({id:`rec-junior-${key}`, date:key, title:'Omladinski Ansambl - Proba / Junior Ensemble Rehearsal', type:'junior', time:'19:15', endTime:'20:30', location:'', notes:''});
+    }
+    d.setDate(d.getDate() + 1);
+  }
+  return list.filter(e => !CANCELLED_PRACTICE_IDS.includes(e.id));
+}
+
+function buildChurchEvents(){
+  return [
+    {id:'church-nativity-fast', date:'2026-11-28', title:'Božićni Post Počinje / Nativity Fast Begins', type:'church', time:'', endTime:'', location:'', notes:''},
+    {id:'church-badnji-dan', date:'2027-01-06', title:'Badnji Dan / Christmas Eve — Last Day of Christmas Fast', type:'church', time:'', endTime:'', location:'', notes:''},
+    {id:'church-bozic', date:'2027-01-07', title:'Božić / Christmas', type:'church', time:'', endTime:'', location:'', notes:''},
+    {id:'church-djetinjci', date:'2026-12-20', title:"Detinjci / Children's Sunday", type:'church', time:'', endTime:'', location:'', notes:''},
+    {id:'church-great-lent', date:'2027-03-15', title:'Veliki Post Počinje / Great Lent Begins', type:'church', time:'', endTime:'', location:'', notes:''},
+    {id:'church-lazarus-saturday', date:'2027-04-24', title:'Vrbica / Lazarus Saturday', type:'church', time:'', endTime:'', location:'', notes:''},
+    {id:'church-palm-sunday', date:'2027-04-25', title:'Cveti / Palm Sunday', type:'church', time:'', endTime:'', location:'', notes:''},
+    {id:'church-holy-week', date:'2027-04-26', title:'Strašna Sedmica / Holy Week', type:'church', time:'', endTime:'', location:'', notes:'Runs Monday, Apr 26 through Saturday, May 1'},
+    {id:'church-veliki-petak', date:'2027-04-30', title:'Veliki Petak / Good Friday', type:'church', time:'', endTime:'', location:'', notes:''},
+    {id:'church-velika-sreda', date:'2027-04-28', title:'Velika Sreda / Holy Wednesday', type:'church', time:'', endTime:'', location:'', notes:''},
+    {id:'church-velika-subota', date:'2027-05-01', title:'Velika Subota / Holy Saturday', type:'church', time:'', endTime:'', location:'', notes:''},
+    {id:'church-easter', date:'2027-05-02', title:'Vaskrs / Orthodox Easter — Fast Ends', type:'church', time:'', endTime:'', location:'', notes:''}
+  ];
+}
+
+function buildOtherEvents(){
+  return [
+    {id:'other-season-begins', date:'2026-09-02', title:'Sezona Počinje / Season Begins', type:'other', time:'', endTime:'', location:'', notes:''},
+    {id:'other-parent-meeting', date:'2026-09-04', title:'Roditeljski Sastanak i Pitanja i Odgovori / Parent Meeting and Q&A', type:'other', time:'18:00', endTime:'', location:'', notes:''},
+    {id:'other-newyears-break', date:'2026-12-30', title:"Proba Otkazana — Novogodišnji Praznici / Practice Cancelled — New Year's Break", type:'other', time:'', endTime:'', location:'', notes:'No practice Dec 30 – Jan 1'},
+    {id:'other-orthodox-newyear-prep', date:'2027-01-15', title:'Proba Otkazana — Priprema za Proslavu Pravoslavne Nove Godine / Practice Cancelled — Orthodox New Year Celebration Prep', type:'other', time:'', endTime:'', location:'', notes:''},
+    {id:'other-annual-picnic', date:'2027-02-20', title:'Godišnji Piknik (Predloženo) — u Organizaciji Srpski Biser / Annual Picnic (Proposed) — Organized by Srpski Biser', type:'other', time:'', endTime:'', location:'', notes:'Proposed date. No performance.'},
+    {id:'other-nye-jan1', date:'2027-01-01', title:"Proba Otkazana — Nova Godina / Practice Cancelled — New Year's Day", type:'other', time:'', endTime:'', location:'', notes:''},
+    {id:'other-season-ends', date:'2027-05-14', title:'Sezona se Završava / Season Ends', type:'other', time:'', endTime:'', location:'', notes:''}
+  ];
+}
+
+function buildMainPerformances(){
+  return [
+    {id:'perf-serbfest-orlando', date:'2026-10-10', title:'SerbFest Orlando', type:'performance', time:'', endTime:'', location:'Orlando, FL', notes:''},
+    {id:'perf-serbfest-jax', date:'2026-10-17', title:'SerbFest Jacksonville', type:'performance', time:'', endTime:'', location:'Jacksonville, FL', notes:''},
+    {id:'perf-serbfest-clearwater', date:'2026-10-24', title:'SerbFest Clearwater', type:'performance', time:'', endTime:'', location:'Clearwater, FL', notes:''},
+    {id:'perf-kss-sveta-petka', date:'2026-10-25', title:'Proslava Slave KSS Sveta Petka / Kolo Srpskih Sestara (KSS) — St. Petka Slava Celebration', type:'performance', time:'', endTime:'', location:'', notes:''},
+    {id:'perf-serbfest-stpete', date:'2026-11-07', title:'SerbFest St. Pete', type:'performance', time:'', endTime:'', location:'St. Petersburg, FL', notes:''},
+    {id:'perf-talija-art-co', date:'2026-11-21', title:'Talija Art Co Concert', type:'performance', time:'', endTime:'', location:'', notes:'Senior ensemble only'},
+    {id:'perf-sv-arhangel-mihailo', date:'2026-11-22', title:'Proslava Slave Folklora Sv. Arhangela Mihaila / Folklore Slava Celebration — St. Archangel Michael', type:'performance', time:'', endTime:'', location:'', notes:''},
+    {id:'perf-slava-crkve', date:'2027-01-31', title:'Proslava Slave Crkve / Church Slava Celebration', type:'performance', time:'', endTime:'', location:'', notes:'Date to be confirmed'},
+    {id:'perf-annual-concert', date:'2027-03-13', title:'Godišnji Koncert (Predloženo) / Annual Concert (Proposed)', type:'performance', time:'', endTime:'', location:'', notes:'Proposed date'},
+    {id:'perf-spiffs', date:'2027-03-06', title:'SPIFFS', type:'performance', time:'', endTime:'', location:'', notes:''}
+  ];
+}
+
+function render(){
+  const wrap = document.getElementById('calendarWrap');
+  wrap.innerHTML = '';
+  const tKey = todayKey();
+
+  MONTHS.forEach(({y,m}) => {
+    const monthEl = document.createElement('div');
+    monthEl.className = 'month';
+
+    const firstOfMonth = new Date(y,m,1);
+    const daysInMonth = new Date(y,m+1,0).getDate();
+    const startDow = firstOfMonth.getDay();
+
+    const evtCountThisMonth = events.filter(e => {
+      const [ey,em] = e.date.split('-').map(Number);
+      return ey===y && (em-1)===m;
+    }).length;
+
+    monthEl.innerHTML = `<div class="month-head"><span>${MONTH_NAMES[m]} ${y}</span><span class="mcount">${evtCountThisMonth ? evtCountThisMonth + ' događ' + (evtCountThisMonth===1?'aj':(evtCountThisMonth<5?'aja':'aja')) : ''}</span></div>`;
+
+    const grid = document.createElement('div');
+    grid.className = 'grid';
+    DOW.forEach(d => {
+      const el = document.createElement('div');
+      el.className = 'dow';
+      el.textContent = d;
+      grid.appendChild(el);
+    });
+    for(let i=0;i<startDow;i++){
+      const el = document.createElement('div');
+      el.className = 'day empty';
+      grid.appendChild(el);
+    }
+    for(let d=1; d<=daysInMonth; d++){
+      const dObj = new Date(y,m,d);
+      const key = dateKey(y,m,d);
+      const dayEl = document.createElement('div');
+      const within = inSeason(dObj);
+      dayEl.className = 'day' + (within ? '' : ' out-of-season') + (key===tKey ? ' today' : '');
+      const dayEvts = events.filter(e => e.date === key);
+      let tagsHtml = '';
+      dayEvts.slice(0,2).forEach(e => {
+        tagsHtml += `<div class="evt-tag ${e.type}">${escapeHtml(e.title)}</div>`;
+      });
+      if(dayEvts.length > 2){
+        tagsHtml += `<div class="more-tag">+${dayEvts.length-2} more</div>`;
+      }
+      dayEl.innerHTML = `<div class="daynum">${d}</div>${tagsHtml}`;
+      if(within){
+        dayEl.addEventListener('click', () => openModal(key, dObj));
+      }
+      grid.appendChild(dayEl);
+    }
+    monthEl.appendChild(grid);
+    wrap.appendChild(monthEl);
+  });
+}
+
+function escapeHtml(s){
+  const div = document.createElement('div');
+  div.textContent = s;
+  return div.innerHTML;
+}
+
+function openModal(key, dateObj){
+  selectedDate = key;
+  document.querySelector('#overlay h2').textContent = 'Events';
+  document.getElementById('modalDateLabel').textContent = fmtLong(dateObj);
+  renderExisting();
+  document.getElementById('overlay').classList.add('open');
+}
+
+function renderExisting(){
+  const list = document.getElementById('existingList');
+  const dayEvts = events.filter(e => e.date === selectedDate);
+  if(dayEvts.length === 0){
+    list.innerHTML = '<div class="empty-note">No events for this date.</div>';
+    return;
+  }
+  list.innerHTML = '';
+  dayEvts.forEach(e => {
+    const row = document.createElement('div');
+    row.className = 'existing-evt';
+    row.innerHTML = `
+      <div class="swatch ${e.type}"></div>
+      <div class="body">
+        <div class="etitle">${escapeHtml(e.title)}</div>
+        <div class="emeta">${TYPE_LABEL[e.type]}${e.time ? ' · ' + formatTime(e.time) + (e.endTime ? '–' + formatTime(e.endTime) : '') : ''}${e.location ? ' · ' + escapeHtml(e.location) : ''}</div>
+        ${e.notes ? `<div class="enotes">${escapeHtml(e.notes)}</div>` : ''}
+      </div>
+    `;
+    list.appendChild(row);
+  });
+}
+
+function formatTime(t){
+  const [h,min] = t.split(':').map(Number);
+  const ampm = h >= 12 ? 'PM' : 'AM';
+  const h12 = h % 12 === 0 ? 12 : h % 12;
+  return `${h12}:${String(min).padStart(2,'0')} ${ampm}`;
+}
+
+function closeModal(){
+  document.getElementById('overlay').classList.remove('open');
+  selectedDate = null;
+}
+
+function setStatus(msg){
+  document.getElementById('statusMsg').textContent = msg;
+}
+
+document.getElementById('closeModal').addEventListener('click', closeModal);
+document.getElementById('overlay').addEventListener('click', (e) => {
+  if(e.target.id === 'overlay') closeModal();
+});
+
+(async function init(){
+  await loadEvents();
+  render();
+  setStatus('');
+})();
+</script>
+</body>
+</html>
