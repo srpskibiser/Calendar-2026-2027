@@ -318,7 +318,7 @@
   <div class="eyebrow">Folklorni Ansambl Srpski Biser</div>
   <h1 id="groupTitle">Kalendar Događaja 2026/2027</h1>
   <div class="season-range">2. septembar 2026. – 14. maj 2027.</div>
-  <div class="instructors">Instructors: Selena & Dragana</div>
+  <div class="instructors">Instruktori: Selena i Dragana</div>
   <div class="instructors">Srpskibiser1@gmail.com</div>
 </header>
 
@@ -331,25 +331,81 @@
   <div class="legend-item"><span class="dot other"></span>Ostalo</div>
 </div>
 
+<div class="toolbar">
+  <button class="btn primary" id="addEventBtn">+ Add Event</button>
+  <div class="lock-badge" id="lockBadge">🔒 Locked — parents view only</div>
+</div>
 <div class="status-msg" id="statusMsg">Loading calendar…</div>
 
 <div class="wrap" id="calendarWrap"></div>
 
-<footer>Tap any date to view event details</footer>
+<footer>Tap any date to add or view events · Shared live with everyone who has this link</footer>
+
+<div class="overlay" id="passOverlay">
+  <div class="modal" style="max-width:340px;">
+    <button class="close-x" id="closePassModal">&times;</button>
+    <div class="modal-inner">
+      <h2>Enter Edit Passcode</h2>
+      <div class="modal-date">Only needed to add or remove events</div>
+      <label>Passcode</label>
+      <div class="pass-row">
+        <input type="text" inputmode="numeric" id="passInput" placeholder="••••" autocomplete="off">
+        <button type="button" class="btn primary" id="passSubmit">Unlock</button>
+      </div>
+      <div class="empty-note" id="passError" style="display:none;color:#a04040;">Incorrect passcode. Try again.</div>
+    </div>
+  </div>
+</div>
 
 <div class="overlay" id="overlay">
   <div class="modal">
     <button class="close-x" id="closeModal">&times;</button>
     <div class="modal-inner">
-      <h2>Events</h2>
+      <h2>Add Event</h2>
       <div class="modal-date" id="modalDateLabel"></div>
 
       <div class="existing-list" id="existingList"></div>
+
+      <div class="view-only-note" id="viewOnlyNote" style="display:none;">You're viewing this calendar. Ask the group leader to unlock editing to add or remove events.</div>
+
+      <form id="eventForm">
+        <label>Event title</label>
+        <input type="text" id="fTitle" placeholder="e.g. Full rehearsal – Kolo group" required>
+
+        <label>Type</label>
+        <div class="type-picker" id="typePicker">
+          <div class="type-opt senior sel" data-type="senior">Senior</div>
+          <div class="type-opt junior" data-type="junior">Junior</div>
+          <div class="type-opt children" data-type="children">Children</div>
+          <div class="type-opt performance" data-type="performance">Performance</div>
+          <div class="type-opt church" data-type="church">Church</div>
+          <div class="type-opt other" data-type="other">Other</div>
+        </div>
+
+        <label>Time (optional)</label>
+        <input type="time" id="fTime">
+
+        <label>End time (optional)</label>
+        <input type="time" id="fEndTime">
+
+        <label>Location (optional)</label>
+        <input type="text" id="fLocation" placeholder="e.g. Church hall">
+
+        <label>Notes (optional)</label>
+        <textarea id="fNotes" placeholder="Costume needed, carpool info, etc."></textarea>
+
+        <div class="modal-actions">
+          <button type="button" class="btn" id="cancelBtn">Cancel</button>
+          <button type="submit" class="btn primary">Save Event</button>
+        </div>
+      </form>
     </div>
   </div>
 </div>
 
 <script>
+const STORAGE_KEY = 'kolo-season-events-2026-27';
+const SEED_FLAG_KEY = 'kolo-season-practices-seeded-v13';
 const SEASON_START = new Date(2026, 8, 2);  // Sept 2 2026
 const SEASON_END = new Date(2027, 4, 14);   // May 14 2027
 const MONTHS = [
@@ -360,8 +416,11 @@ const MONTH_NAMES = ["Januar","Februar","Mart","April","Maj","Jun","Jul","Avgust
 const DOW = ["Ned","Pon","Uto","Sre","Čet","Pet","Sub"];
 const TYPE_LABEL = {senior:"Senior Ensemble", junior:"Junior Ensemble", children:"Children's Ensemble", performance:"Performance", church:"Church Event", other:"Other"};
 
+const EDIT_CODE = '5901';
 let events = [];
 let selectedDate = null;
+let selectedType = 'senior';
+let isUnlocked = false;
 
 function dateKey(y,m,d){
   return `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
@@ -377,6 +436,9 @@ function todayKey(){
   return dateKey(t.getFullYear(), t.getMonth(), t.getDate());
 }
 
+const CANONICAL_DATES = {
+  'perf-slava-crkve': '2027-01-24'
+};
 const CANONICAL_TITLES = {
   'other-season-begins': 'Sezona Počinje / Season Begins',
   'other-parent-meeting': 'Roditeljski Sastanak i Pitanja i Odgovori / Parent Meeting and Q&A',
@@ -388,11 +450,12 @@ const CANONICAL_TITLES = {
   'church-great-lent': 'Veliki Post Počinje / Great Lent Begins',
   'church-lazarus-saturday': 'Vrbica / Lazarus Saturday',
   'church-palm-sunday': 'Cveti / Palm Sunday',
-  'church-holy-week': 'Strašna Sedmica / Holy Week',
+  'church-holy-week': 'Strasna Sedmica / Holy Week',
   'church-veliki-petak': 'Veliki Petak / Good Friday',
   'church-velika-sreda': 'Velika Sreda / Holy Wednesday',
   'church-velika-subota': 'Velika Subota / Holy Saturday',
   'church-easter': 'Vaskrs / Orthodox Easter — Fast Ends',
+  'church-skola-slava': 'Slava Crkvene Škole Sv. Nikolaja Velimirovića / School Slava — St. Nikolaj Velimirović',
   'other-newyears-break': "Proba Otkazana — Novogodišnji Praznici / Practice Cancelled — New Year's Break",
   'other-orthodox-newyear-prep': 'Proba Otkazana — Priprema za Proslavu Pravoslavne Nove Godine / Practice Cancelled — Orthodox New Year Celebration Prep',
   'other-annual-picnic': 'Godišnji Piknik (Predloženo) — u Organizaciji Srpski Biser / Annual Picnic (Proposed) — Organized by Srpski Biser',
@@ -409,15 +472,52 @@ const RECURRING_TITLES = {
 };
 
 async function loadEvents(){
-  events = buildRecurringPractices()
-    .concat(buildMainPerformances())
-    .concat(buildChurchEvents())
-    .concat(buildOtherEvents())
-    .filter(e => !CANCELLED_PRACTICE_IDS.includes(e.id));
+  try {
+    const res = await window.storage.get(STORAGE_KEY, true);
+    events = res && res.value ? JSON.parse(res.value) : [];
+  } catch(e){
+    events = [];
+  }
+  let migrated = false;
+  events = events.map(e => {
+    let out = e;
+    if(out.type === 'rehearsal'){
+      migrated = true;
+      if(out.title.includes('Senior')) out = {...out, type:'senior'};
+      else if(out.title.includes('Junior')) out = {...out, type:'junior'};
+      else if(out.title.includes('Children')) out = {...out, type:'children'};
+      else out = {...out, type:'other'};
+    }
+    if(CANONICAL_TITLES[out.id] && out.title !== CANONICAL_TITLES[out.id]){
+      migrated = true;
+      out = {...out, title: CANONICAL_TITLES[out.id]};
+    }
+    if(CANONICAL_DATES[out.id] && out.date !== CANONICAL_DATES[out.id]){
+      migrated = true;
+      out = {...out, date: CANONICAL_DATES[out.id]};
+    }
+    for(const prefix in RECURRING_TITLES){
+      if(out.id.startsWith(prefix) && out.title !== RECURRING_TITLES[prefix]){
+        migrated = true;
+        out = {...out, title: RECURRING_TITLES[prefix]};
+      }
+    }
+    return out;
+  });
+  const beforeCount = events.length;
+  events = events.filter(e => !CANCELLED_PRACTICE_IDS.includes(e.id));
+  if(events.length !== beforeCount) migrated = true;
+  if(migrated){
+    await saveEvents();
+  }
 }
 async function saveEvents(){
-  // Static view-only version: no persistence, nothing to save.
-  return true;
+  try {
+    await window.storage.set(STORAGE_KEY, JSON.stringify(events), true);
+    return true;
+  } catch(e){
+    return false;
+  }
 }
 
 const CANCELLED_PRACTICE_IDS = [
@@ -455,11 +555,12 @@ function buildChurchEvents(){
     {id:'church-great-lent', date:'2027-03-15', title:'Veliki Post Počinje / Great Lent Begins', type:'church', time:'', endTime:'', location:'', notes:''},
     {id:'church-lazarus-saturday', date:'2027-04-24', title:'Vrbica / Lazarus Saturday', type:'church', time:'', endTime:'', location:'', notes:''},
     {id:'church-palm-sunday', date:'2027-04-25', title:'Cveti / Palm Sunday', type:'church', time:'', endTime:'', location:'', notes:''},
-    {id:'church-holy-week', date:'2027-04-26', title:'Strašna Sedmica / Holy Week', type:'church', time:'', endTime:'', location:'', notes:'Runs Monday, Apr 26 through Saturday, May 1'},
+    {id:'church-holy-week', date:'2027-04-26', title:'Strasna Sedmica / Holy Week', type:'church', time:'', endTime:'', location:'', notes:'Runs Monday, Apr 26 through Saturday, May 1'},
     {id:'church-veliki-petak', date:'2027-04-30', title:'Veliki Petak / Good Friday', type:'church', time:'', endTime:'', location:'', notes:''},
     {id:'church-velika-sreda', date:'2027-04-28', title:'Velika Sreda / Holy Wednesday', type:'church', time:'', endTime:'', location:'', notes:''},
     {id:'church-velika-subota', date:'2027-05-01', title:'Velika Subota / Holy Saturday', type:'church', time:'', endTime:'', location:'', notes:''},
-    {id:'church-easter', date:'2027-05-02', title:'Vaskrs / Orthodox Easter — Fast Ends', type:'church', time:'', endTime:'', location:'', notes:''}
+    {id:'church-easter', date:'2027-05-02', title:'Vaskrs / Orthodox Easter — Fast Ends', type:'church', time:'', endTime:'', location:'', notes:''},
+    {id:'church-skola-slava', date:'2027-05-16', title:'Slava Crkvene Škole Sv. Nikolaja Velimirovića / School Slava — St. Nikolaj Velimirović', type:'church', time:'', endTime:'', location:'', notes:''}
   ];
 }
 
@@ -484,10 +585,30 @@ function buildMainPerformances(){
     {id:'perf-serbfest-stpete', date:'2026-11-07', title:'SerbFest St. Pete', type:'performance', time:'', endTime:'', location:'St. Petersburg, FL', notes:''},
     {id:'perf-talija-art-co', date:'2026-11-21', title:'Talija Art Co Concert', type:'performance', time:'', endTime:'', location:'', notes:'Senior ensemble only'},
     {id:'perf-sv-arhangel-mihailo', date:'2026-11-22', title:'Proslava Slave Folklora Sv. Arhangela Mihaila / Folklore Slava Celebration — St. Archangel Michael', type:'performance', time:'', endTime:'', location:'', notes:''},
-    {id:'perf-slava-crkve', date:'2027-01-31', title:'Proslava Slave Crkve / Church Slava Celebration', type:'performance', time:'', endTime:'', location:'', notes:'Date to be confirmed'},
+    {id:'perf-slava-crkve', date:'2027-01-24', title:'Proslava Slave Crkve / Church Slava Celebration', type:'performance', time:'', endTime:'', location:'', notes:'Date to be confirmed'},
     {id:'perf-annual-concert', date:'2027-03-13', title:'Godišnji Koncert (Predloženo) / Annual Concert (Proposed)', type:'performance', time:'', endTime:'', location:'', notes:'Proposed date'},
     {id:'perf-spiffs', date:'2027-03-06', title:'SPIFFS', type:'performance', time:'', endTime:'', location:'', notes:''}
   ];
+}
+
+async function seedRecurringPracticesIfNeeded(){
+  let alreadySeeded = false;
+  try {
+    const flag = await window.storage.get(SEED_FLAG_KEY, true);
+    alreadySeeded = !!(flag && flag.value === 'true');
+  } catch(e){
+    alreadySeeded = false;
+  }
+  if(alreadySeeded) return;
+
+  const recurring = buildRecurringPractices().concat(buildMainPerformances()).concat(buildChurchEvents()).concat(buildOtherEvents());
+  const existingIds = new Set(events.map(e => e.id));
+  const missing = recurring.filter(e => !existingIds.has(e.id));
+  if(missing.length > 0){
+    events = events.concat(missing);
+    await saveEvents();
+  }
+  try { await window.storage.set(SEED_FLAG_KEY, 'true', true); } catch(e){}
 }
 
 function render(){
@@ -556,8 +677,14 @@ function escapeHtml(s){
 
 function openModal(key, dateObj){
   selectedDate = key;
-  document.querySelector('#overlay h2').textContent = 'Events';
+  document.querySelector('#overlay h2').textContent = isUnlocked ? 'Add Event' : 'Events';
   document.getElementById('modalDateLabel').textContent = fmtLong(dateObj);
+  document.getElementById('eventForm').reset();
+  selectedType = 'senior';
+  document.querySelectorAll('.type-opt').forEach(el => el.classList.remove('sel'));
+  document.querySelector('.type-opt.senior').classList.add('sel');
+  document.getElementById('eventForm').style.display = isUnlocked ? 'block' : 'none';
+  document.getElementById('viewOnlyNote').style.display = isUnlocked ? 'none' : 'block';
   renderExisting();
   document.getElementById('overlay').classList.add('open');
 }
@@ -566,7 +693,7 @@ function renderExisting(){
   const list = document.getElementById('existingList');
   const dayEvts = events.filter(e => e.date === selectedDate);
   if(dayEvts.length === 0){
-    list.innerHTML = '<div class="empty-note">No events for this date.</div>';
+    list.innerHTML = '<div class="empty-note">No events yet for this date.</div>';
     return;
   }
   list.innerHTML = '';
@@ -580,8 +707,19 @@ function renderExisting(){
         <div class="emeta">${TYPE_LABEL[e.type]}${e.time ? ' · ' + formatTime(e.time) + (e.endTime ? '–' + formatTime(e.endTime) : '') : ''}${e.location ? ' · ' + escapeHtml(e.location) : ''}</div>
         ${e.notes ? `<div class="enotes">${escapeHtml(e.notes)}</div>` : ''}
       </div>
+      ${isUnlocked ? `<button class="del-btn" data-id="${e.id}">Remove</button>` : ''}
     `;
     list.appendChild(row);
+  });
+  list.querySelectorAll('.del-btn').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      events = events.filter(e => e.id !== btn.dataset.id);
+      setStatus('Saving…');
+      await saveEvents();
+      setStatus('Saved. Everyone with this link will see the update.');
+      renderExisting();
+      render();
+    });
   });
 }
 
@@ -599,15 +737,110 @@ function closeModal(){
 
 function setStatus(msg){
   document.getElementById('statusMsg').textContent = msg;
+  if(msg){
+    setTimeout(() => {
+      const el = document.getElementById('statusMsg');
+      if(el.textContent === msg) el.textContent = '';
+    }, 3000);
+  }
 }
 
+document.getElementById('addEventBtn').addEventListener('click', () => {
+  if(!isUnlocked){
+    openPassModal();
+    return;
+  }
+  const t = new Date();
+  let target = inSeason(t) ? t : SEASON_START;
+  openModal(dateKey(target.getFullYear(), target.getMonth(), target.getDate()), target);
+});
+
+function updateLockBadge(){
+  const badge = document.getElementById('lockBadge');
+  if(isUnlocked){
+    badge.textContent = '🔓 Editing unlocked';
+    badge.classList.add('unlocked');
+  } else {
+    badge.textContent = '🔒 Locked — parents view only';
+    badge.classList.remove('unlocked');
+  }
+}
+
+function openPassModal(){
+  document.getElementById('passInput').value = '';
+  document.getElementById('passError').style.display = 'none';
+  document.getElementById('passOverlay').classList.add('open');
+}
+function closePassModal(){
+  document.getElementById('passOverlay').classList.remove('open');
+}
+
+document.getElementById('lockBadge').addEventListener('click', () => {
+  if(isUnlocked){
+    isUnlocked = false;
+    updateLockBadge();
+  } else {
+    openPassModal();
+  }
+});
+document.getElementById('closePassModal').addEventListener('click', closePassModal);
+document.getElementById('passOverlay').addEventListener('click', (e) => {
+  if(e.target.id === 'passOverlay') closePassModal();
+});
+document.getElementById('passSubmit').addEventListener('click', tryUnlock);
+document.getElementById('passInput').addEventListener('keydown', (e) => {
+  if(e.key === 'Enter') tryUnlock();
+});
+function tryUnlock(){
+  const val = document.getElementById('passInput').value.trim();
+  if(val === EDIT_CODE){
+    isUnlocked = true;
+    updateLockBadge();
+    closePassModal();
+  } else {
+    document.getElementById('passError').style.display = 'block';
+  }
+}
 document.getElementById('closeModal').addEventListener('click', closeModal);
+document.getElementById('cancelBtn').addEventListener('click', closeModal);
 document.getElementById('overlay').addEventListener('click', (e) => {
   if(e.target.id === 'overlay') closeModal();
 });
+document.querySelectorAll('.type-opt').forEach(el => {
+  el.addEventListener('click', () => {
+    document.querySelectorAll('.type-opt').forEach(o => o.classList.remove('sel'));
+    el.classList.add('sel');
+    selectedType = el.dataset.type;
+  });
+});
+
+document.getElementById('eventForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const title = document.getElementById('fTitle').value.trim();
+  if(!title || !selectedDate) return;
+  const newEvt = {
+    id: 'e' + Date.now() + Math.random().toString(36).slice(2,7),
+    date: selectedDate,
+    title,
+    type: selectedType,
+    time: document.getElementById('fTime').value,
+    endTime: document.getElementById('fEndTime').value,
+    location: document.getElementById('fLocation').value.trim(),
+    notes: document.getElementById('fNotes').value.trim()
+  };
+  events.push(newEvt);
+  setStatus('Saving…');
+  const ok = await saveEvents();
+  setStatus(ok ? 'Saved. Everyone with this link will see the update.' : 'Could not save — please try again.');
+  document.getElementById('eventForm').reset();
+  renderExisting();
+  render();
+});
 
 (async function init(){
+  updateLockBadge();
   await loadEvents();
+  await seedRecurringPracticesIfNeeded();
   render();
   setStatus('');
 })();
